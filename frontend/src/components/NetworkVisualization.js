@@ -13,7 +13,7 @@ function NetworkVisualization({ data }) {
       const height = 600;
       svg.attr('width', width).attr('height', height);
 
-      if (!data.mainPaper || !data.citedPapers || !data.citingPapers) {
+      if (!data.mainPaper || !data.relatedPapers) {
         console.error('Invalid data structure:', data);
         svg.append('text')
           .attr('x', width / 2)
@@ -23,36 +23,16 @@ function NetworkVisualization({ data }) {
         return;
       }
 
-      const nodeIds = new Set([
-        data.mainPaper.id,
-        ...data.citedPapers.map(p => p.id),
-        ...data.citingPapers.map(p => p.id)
-      ]);
-
       const nodes = [
         { ...data.mainPaper, group: 'main' },
-        ...data.citedPapers.map(paper => ({ ...paper, group: 'cited' })),
-        ...data.citingPapers.map(paper => ({ ...paper, group: 'citing' }))
+        ...data.relatedPapers.map(paper => ({ ...paper, group: 'related' }))
       ];
 
-      const links = [
-        ...data.citedPapers
-          .filter(paper => nodeIds.has(paper.id))
-          .map(paper => ({ source: data.mainPaper.id, target: paper.id, type: 'cites' })),
-        ...data.citingPapers
-          .filter(paper => nodeIds.has(paper.id))
-          .map(paper => ({ source: paper.id, target: data.mainPaper.id, type: 'cites' }))
-      ];
-
-      if (nodes.length === 0) {
-        console.error('No valid nodes found');
-        svg.append('text')
-          .attr('x', width / 2)
-          .attr('y', height / 2)
-          .attr('text-anchor', 'middle')
-          .text('No valid data to display');
-        return;
-      }
+      const links = data.relatedPapers.map(paper => ({
+        source: data.mainPaper.id,
+        target: paper.id,
+        type: 'related'
+      }));
 
       const simulation = d3.forceSimulation(nodes)
         .force('link', d3.forceLink(links).id(d => d.id).distance(100))
@@ -66,18 +46,14 @@ function NetworkVisualization({ data }) {
         .enter().append('line')
         .attr('stroke', '#999')
         .attr('stroke-opacity', 0.6)
-        .attr('stroke-width', d => Math.sqrt(d.value));
+        .attr('stroke-width', 1);
 
       const node = svg.append('g')
         .selectAll('circle')
         .data(nodes)
         .enter().append('circle')
         .attr('r', d => d.group === 'main' ? 15 : 10)
-        .attr('fill', d => {
-          if (d.group === 'main') return '#ff0000';
-          if (d.group === 'cited') return '#00ff00';
-          return '#0000ff';
-        })
+        .attr('fill', d => d.group === 'main' ? '#ff0000' : '#0000ff')
         .call(d3.drag()
           .on('start', dragstarted)
           .on('drag', dragged)
@@ -93,7 +69,7 @@ function NetworkVisualization({ data }) {
         .attr('dy', 4);
 
       node.append('title')
-        .text(d => `${d.title || 'Untitled'}\nAuthors: ${(d.authors || []).join(', ') || 'Unknown'}\nYear: ${d.year || 'N/A'}`);
+        .text(d => `${d.title || 'Untitled'}\nAuthors: ${(d.authors || []).join(', ') || 'Unknown'}`);
 
       simulation.on('tick', () => {
         link
