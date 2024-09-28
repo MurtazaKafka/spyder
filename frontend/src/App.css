@@ -12,17 +12,26 @@
 header {
   display: flex;
   justify-content: space-between;
-  padding: 1rem;
+  padding: 0.6rem 20%;
   background-color: rgba(0, 0, 0, 0.5);
 }
 
 .header-item {
   font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff !important;
+  cursor: pointer;
+}
+
+.spider-icon-header{
+  display: flex;
 }
 
 .spider-icon {
-  width: 24px;
-  height: 24px;
+  width: 64px;
+  height: 64px;
   margin-left: 0.5rem;
 }
 
@@ -37,15 +46,23 @@ main {
 
 .search-container {
   background-color: rgba(0, 0, 0, 0.7);
-  padding: 2rem;
   border-radius: 10px;
+  width: 40%;
+  padding: 20px;
+  margin: 0 auto;
   margin-bottom: 2rem;
 }
 
-input[type="text"] {
+.archive-id{
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 20px;
+}
+
+.archive-id>input{
+  height: 30px !important;
+  padding: 5px 15px;
   border: none;
   border-radius: 5px;
 }
@@ -81,11 +98,14 @@ footer {
 }
 
 .footer-left{
-  flex-direction: column;
+  width: 30%;
+}
+.footer-right{
+  width: 70%;
 }
 .footer-left, .footer-right {
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 
 .footer-logo-holder{
@@ -107,5 +127,5 @@ footer {
 }
 
 .sponsor-logos img {
-  height: 30px;
+  height: 70px;
 }

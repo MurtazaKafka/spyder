@@ -1,43 +1,59 @@
-import React, { useState } from 'react';
-import "./App.css"
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-const SpyderApp = () => {
-  const [arxivId, setArxivId] = useState('');
+const Home = () => {
+  const [arxivId, setArxivId] = useState("");
 
   return (
     <div className="spyder-app">
       <header>
-        <div className="header-item">Our Team</div>
-        <div className="header-item">
-          Spyder
-          <img src="/images/spyder.png" alt="Spider Icon" className="spider-icon" />
-        </div>
-        <div className="header-item">Our Mission</div>
+        <Link to="/team" className="header-item">
+          Our Team
+        </Link>
+        <Link to="/" className="header-item spider-icon-header">
+          <p>Spyder</p>
+          <img
+            src="/images/spyder.png"
+            alt="Spider Icon"
+            className="spider-icon"
+          />
+        </Link>
+        <Link to="/mission" className="header-item">
+          Our Mission
+        </Link>
       </header>
-      
+
       <main>
         <div className="search-container">
-          <h2>Enter ArXiV id:</h2>
-          <input 
-            type="text" 
-            value={arxivId} 
-            onChange={(e) => setArxivId(e.target.value)}
-            placeholder="Enter ArXiV id"
-          />
-          <p>or upload scanned document</p>
+          <div className="archive-id">
+            <h2>Enter ArXiV id:</h2>
+            <input
+              type="text"
+              value={arxivId}
+              onChange={(e) => setArxivId(e.target.value)}
+              placeholder="Enter ArXiV id"
+            />
+          </div>
+
+          <p>Or upload a scanned document</p>
+          <input type="file" accept=".pdf"></input>
         </div>
-        
+
         <div className="action-buttons">
           <button className="contact-us">Contact Us</button>
           <button className="view-project">View Project</button>
         </div>
       </main>
-      
+
       <footer>
         <div className="footer-left">
-          <div className='footer-logo-holder'>
+          <div className="footer-logo-holder">
             <h2>Sypder</h2>
-            <img src="/images/spyder.png" alt="Spyder Logo" className="footer-logo" />
+            <img
+              src="/images/spyder.png"
+              alt="Spyder Logo"
+              className="footer-logo"
+            />
           </div>
 
           <div className="team-members">
@@ -62,4 +78,4 @@ const SpyderApp = () => {
   );
 };
 
-export default SpyderApp;
+export default Home;
