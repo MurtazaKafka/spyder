@@ -26,7 +26,7 @@ async function fetchPaperDetails(arxivId) {
 
 async function fetchRelatedPapers(category, excludeId) {
     try {
-      const response = await axios.get(`http://export.arxiv.org/api/query?search_query=cat:${category}&max_results=5`);
+      const response = await axios.get(`http://export.arxiv.org/api/query?search_query=cat:${category}&max_results=10`);
       const result = await xml2js.parseStringPromise(response.data);
       return result.feed.entry
         .filter(entry => entry.id[0] !== excludeId)
@@ -43,19 +43,39 @@ async function fetchRelatedPapers(category, excludeId) {
   }
 
 
+  async function recursiveSearch(arxivId, depth = 2, maxPapersPerLevel = 3) {
+    const visited = new Set();
+    const graph = { nodes: [], links: [] };
+  
+    async function search(id, currentDepth) {
+      if (visited.has(id) || currentDepth > depth) return;
+      visited.add(id);
+  
+      const paper = await fetchPaperDetails(id);
+      graph.nodes.push(paper);
+  
+      if (currentDepth < depth) {
+        const relatedPapers = await fetchRelatedPapers(paper.categories[0], id, maxPapersPerLevel);
+        for (const relatedPaper of relatedPapers) {
+          graph.links.push({ source: id, target: relatedPaper.id });
+          await search(relatedPaper.id, currentDepth + 1);
+        }
+      }
+    }
+  
+    await search(arxivId, 0);
+    return graph;
+  }
+
+
   app.get('/api/paper/:id', async (req, res) => {
     try {
       const arxivId = req.params.id;
-      console.log(`Fetching paper details for ID: ${arxivId}`);
       const paper = await fetchPaperDetails(arxivId);
-      console.log(`Fetched main paper details: ${JSON.stringify(paper)}`);
       const relatedPapers = await fetchRelatedPapers(paper.categories[0], paper.id);
-      console.log(`Fetched related papers: ${JSON.stringify(relatedPapers)}`);
+      const graph = await recursiveSearch(arxivId);
   
-      res.json({
-        mainPaper: paper,
-        relatedPapers: relatedPapers
-      });
+      res.json(graph);
     } catch (error) {
       console.error('Detailed error:', error);
       res.status(500).json({ error: 'An error occurred while processing your request', details: error.message, stack: error.stack });

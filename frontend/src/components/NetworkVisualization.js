@@ -1,48 +1,28 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
-function NetworkVisualization({ data }) {
+function NetworkVisualization({ data, onNodeClick }) {
   const svgRef = useRef();
+  const [selectedNode, setSelectedNode] = useState(null);
 
   useEffect(() => {
     if (data && svgRef.current) {
       const svg = d3.select(svgRef.current);
-      svg.selectAll("*").remove(); // Clear previous visualization
+      svg.selectAll("*").remove();
 
       const width = 800;
       const height = 600;
       svg.attr('width', width).attr('height', height);
 
-      if (!data.mainPaper || !data.relatedPapers) {
-        console.error('Invalid data structure:', data);
-        svg.append('text')
-          .attr('x', width / 2)
-          .attr('y', height / 2)
-          .attr('text-anchor', 'middle')
-          .text('Error: Invalid data structure');
-        return;
-      }
-
-      const nodes = [
-        { ...data.mainPaper, group: 'main' },
-        ...data.relatedPapers.map(paper => ({ ...paper, group: 'related' }))
-      ];
-
-      const links = data.relatedPapers.map(paper => ({
-        source: data.mainPaper.id,
-        target: paper.id,
-        type: 'related'
-      }));
-
-      const simulation = d3.forceSimulation(nodes)
-        .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+      const simulation = d3.forceSimulation(data.nodes)
+        .force('link', d3.forceLink(data.links).id(d => d.id).distance(100))
         .force('charge', d3.forceManyBody().strength(-300))
         .force('center', d3.forceCenter(width / 2, height / 2))
         .force('collision', d3.forceCollide().radius(30));
 
       const link = svg.append('g')
         .selectAll('line')
-        .data(links)
+        .data(data.links)
         .enter().append('line')
         .attr('stroke', '#999')
         .attr('stroke-opacity', 0.6)
@@ -50,18 +30,22 @@ function NetworkVisualization({ data }) {
 
       const node = svg.append('g')
         .selectAll('circle')
-        .data(nodes)
+        .data(data.nodes)
         .enter().append('circle')
-        .attr('r', d => d.group === 'main' ? 15 : 10)
-        .attr('fill', d => d.group === 'main' ? '#ff0000' : '#0000ff')
+        .attr('r', 10)
+        .attr('fill', d => d.id === data.nodes[0].id ? '#ff0000' : '#0000ff')
         .call(d3.drag()
           .on('start', dragstarted)
           .on('drag', dragged)
-          .on('end', dragended));
+          .on('end', dragended))
+        .on('click', (event, d) => {
+          setSelectedNode(d);
+          onNodeClick(d.id);
+        });
 
       const label = svg.append('g')
         .selectAll('text')
-        .data(nodes)
+        .data(data.nodes)
         .enter().append('text')
         .text(d => (d.title || '').substring(0, 20))
         .attr('font-size', '10px')
@@ -104,9 +88,21 @@ function NetworkVisualization({ data }) {
         event.subject.fy = null;
       }
     }
-  }, [data]);
+  }, [data, onNodeClick]);
 
-  return <svg ref={svgRef}></svg>;
+  return (
+    <div>
+      <svg ref={svgRef}></svg>
+      {selectedNode && (
+        <div>
+          <h3>{selectedNode.title}</h3>
+          <p>Authors: {selectedNode.authors.join(', ')}</p>
+          <p>Abstract: {selectedNode.abstract}</p>
+          <a href={selectedNode.link} target="_blank" rel="noopener noreferrer">View on arXiv</a>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default NetworkVisualization;

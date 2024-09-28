@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
 import PaperSearch from './components/PaperSearch';
-import PaperDetails from './components/PaperDetails';
 import NetworkVisualization from './components/NetworkVisualization';
 import './App.css';
 
 function App() {
-  const [paperData, setPaperData] = useState(null);
+  const [graphData, setGraphData] = useState(null);
 
   const handlePaperSearch = async (arxivId) => {
     try {
       const response = await fetch(`http://localhost:3001/api/paper/${arxivId}`);
       const data = await response.json();
-      setPaperData(data);
+      setGraphData(data);
     } catch (error) {
       console.error('Error fetching paper:', error);
       alert('Error fetching paper details');
     }
+  };
+
+  const handleNodeClick = (arxivId) => {
+    handlePaperSearch(arxivId);
   };
 
   return (
@@ -25,11 +28,8 @@ function App() {
       </header>
       <main>
         <PaperSearch onSearch={handlePaperSearch} />
-        {paperData && paperData.mainPaper && (
-          <>
-            <PaperDetails paper={paperData.mainPaper} />
-            <NetworkVisualization data={paperData} />
-          </>
+        {graphData && (
+          <NetworkVisualization data={graphData} onNodeClick={handleNodeClick} />
         )}
       </main>
     </div>
