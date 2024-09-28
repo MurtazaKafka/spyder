@@ -1,46 +1,111 @@
-.App {
-  text-align: center;
+.spyder-app {
   font-family: Arial, sans-serif;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: url('../public/images/background.png');
+  background-size: cover;
+  background-position: center;
 }
 
-.App-header {
-  background-color: #282c34;
-  padding: 20px;
-  color: white;
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.header-item {
+  font-size: 1.2rem;
+}
+
+.spider-icon {
+  width: 24px;
+  height: 24px;
+  margin-left: 0.5rem;
 }
 
 main {
-  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
 }
 
-form {
-  margin-bottom: 20px;
+.search-container {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
 }
 
 input[type="text"] {
-  padding: 10px;
-  font-size: 16px;
-  width: 300px;
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 5px;
 }
 
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #4CAF50;
-  color: white;
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-buttons button {
+  padding: 0.75rem 1.5rem;
   border: none;
+  border-radius: 5px;
+  font-size: 1rem;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #45a049;
+.contact-us {
+  background-color: #0000FF;
+  color: white;
 }
 
-.paper-details {
-  margin-bottom: 20px;
-  text-align: left;
+.view-project {
+  background-color: #4CAF50;
+  color: white;
 }
 
-svg {
-  border: 1px solid #ddd;
+footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.footer-left{
+  flex-direction: column;
+}
+.footer-left, .footer-right {
+  display: flex;
+  align-items: center;
+}
+
+.footer-logo-holder{
+  display: flex;
+}
+.footer-logo {
+  width: 20px;
+  margin-right: 1rem;
+}
+
+.team-members p {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+}
+
+.sponsor-logos {
+  display: flex;
+  gap: 1rem;
+}
+
+.sponsor-logos img {
+  height: 30px;
 }

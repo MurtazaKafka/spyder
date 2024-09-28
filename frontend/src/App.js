@@ -1,39 +1,65 @@
 import React, { useState } from 'react';
-import PaperSearch from './components/PaperSearch';
-import PaperDetails from './components/PaperDetails';
-import NetworkVisualization from './components/NetworkVisualization';
-import './App.css';
+import "./App.css"
 
-function App() {
-  const [paperData, setPaperData] = useState(null);
-
-  const handlePaperSearch = async (arxivId) => {
-    try {
-      const response = await fetch(`http://localhost:3001/api/paper/${arxivId}`);
-      const data = await response.json();
-      setPaperData(data);
-    } catch (error) {
-      console.error('Error fetching paper:', error);
-      alert('Error fetching paper details');
-    }
-  };
+const SpyderApp = () => {
+  const [arxivId, setArxivId] = useState('');
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>PaperWeb: Mapping the Future of Research</h1>
+    <div className="spyder-app">
+      <header>
+        <div className="header-item">Our Team</div>
+        <div className="header-item">
+          Spyder
+          <img src="/images/spyder.png" alt="Spider Icon" className="spider-icon" />
+        </div>
+        <div className="header-item">Our Mission</div>
       </header>
+      
       <main>
-        <PaperSearch onSearch={handlePaperSearch} />
-        {paperData && paperData.mainPaper && (
-          <>
-            <PaperDetails paper={paperData.mainPaper} />
-            <NetworkVisualization data={paperData} />
-          </>
-        )}
+        <div className="search-container">
+          <h2>Enter ArXiV id:</h2>
+          <input 
+            type="text" 
+            value={arxivId} 
+            onChange={(e) => setArxivId(e.target.value)}
+            placeholder="Enter ArXiV id"
+          />
+          <p>or upload scanned document</p>
+        </div>
+        
+        <div className="action-buttons">
+          <button className="contact-us">Contact Us</button>
+          <button className="view-project">View Project</button>
+        </div>
       </main>
+      
+      <footer>
+        <div className="footer-left">
+          <div className='footer-logo-holder'>
+            <h2>Sypder</h2>
+            <img src="/images/spyder.png" alt="Spyder Logo" className="footer-logo" />
+          </div>
+
+          <div className="team-members">
+            <p>Alp (alniksarli@davidson.edu)</p>
+            <p>Murtaza (munikzad@davidson.edu)</p>
+            <p>Pacis (nkpacis@davidson.edu)</p>
+            <p>Philo (phgabra@davidson.edu)</p>
+          </div>
+        </div>
+        <div className="footer-right">
+          <p>Thanks to...</p>
+          <div className="sponsor-logos">
+            <img src="/images/perplexity.png" alt="Perplexity" />
+            <img src="/images/perplexity2.png" alt="Perplexity" />
+            <img src="/images/terraform.png" alt="Terraform" />
+            <img src="/images/godaddy.png" alt="GoDaddy" />
+            <img src="/images/mongo.png" alt="Mongo" />
+          </div>
+        </div>
+      </footer>
     </div>
   );
-}
+};
 
-export default App;
+export default SpyderApp;
