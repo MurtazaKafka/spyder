@@ -35,10 +35,10 @@ function NetworkVisualization({ data }) {
       }));
 
       const simulation = d3.forceSimulation(nodes)
-        .force('link', d3.forceLink(links).id(d => d.id).distance(100))
-        .force('charge', d3.forceManyBody().strength(-300))
+        .force('link', d3.forceLink(links).id(d => d.id).distance(150))
+        .force('charge', d3.forceManyBody().strength(-500))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(30));
+        .force('collision', d3.forceCollide().radius(130));
 
       const link = svg.append('g')
         .selectAll('line')
@@ -46,13 +46,13 @@ function NetworkVisualization({ data }) {
         .enter().append('line')
         .attr('stroke', '#999')
         .attr('stroke-opacity', 0.6)
-        .attr('stroke-width', 1);
+        .attr('stroke-width', 2);
 
       const node = svg.append('g')
         .selectAll('circle')
         .data(nodes)
         .enter().append('circle')
-        .attr('r', d => d.group === 'main' ? 15 : 10)
+        .attr('r', d => d.group === 'main' ? 30 : 20)
         .attr('fill', d => d.group === 'main' ? '#ff0000' : '#0000ff')
         .call(d3.drag()
           .on('start', dragstarted)
@@ -63,10 +63,13 @@ function NetworkVisualization({ data }) {
         .selectAll('text')
         .data(nodes)
         .enter().append('text')
-        .text(d => (d.title || '').substring(0, 20))
+        .text(d =>{
+          let splitTitle = (d.title || '').split(" ");
+          return splitTitle[0] + " "+splitTitle[1];
+        })
         .attr('font-size', '10px')
-        .attr('dx', 15)
-        .attr('dy', 4);
+        .attr('dx', 35)
+        .attr('dy', 0);
 
       node.append('title')
         .text(d => `${d.title || 'Untitled'}\nAuthors: ${(d.authors || []).join(', ') || 'Unknown'}`);
