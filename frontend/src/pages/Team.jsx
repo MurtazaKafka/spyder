@@ -59,7 +59,6 @@ const Team = () => {
           ))}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

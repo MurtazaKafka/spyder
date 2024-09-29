@@ -35,7 +35,6 @@ const Mission = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
