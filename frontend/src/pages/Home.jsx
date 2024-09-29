@@ -12,6 +12,7 @@ const Home = () => {
   const [centerNodeId, setCenterNodeId] = useState(null);
   const [fileDisabled, setFileDisabled] = useState(false);
   const [collaboratorSuggestions, setCollaboratorSuggestions] = useState(null);
+  const [file, setFile] = useState(null); // For storing the uploaded file
 
   const paperDetailsRef = useRef(null);
 
@@ -45,8 +46,7 @@ const Home = () => {
   };
 
   const handlePaperSearch = () => {
-    console.log("ARVIX ID", arxivId);
-    fetchPaperNetwork(arxivId.replace('/', "%2F"));
+    fetchPaperNetwork(arxivId);
   };
 
   const handleNodeClick = (nodeId) => {
@@ -71,16 +71,59 @@ const Home = () => {
     setFileDisabled(e.target.value ? true : false);
   };
 
+  // Handle file upload
   const handleFileUploadClick = () => {
     setArxivId(null);
     setFileDisabled(false);
+  };
+
+  const handleFileChange = (e) => {
+    const uploadedFile = e.target.files[0];
+    if (uploadedFile && uploadedFile.type === "application/pdf") {
+      setFile(uploadedFile);
+      setFileDisabled(true);
+      handleFileUpload(uploadedFile); // Upload the file immediately after selection
+    } else {
+      toast.error("Please upload a valid PDF file.");
+    }
+  };
+
+  const handleFileUpload = async (file) => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(
+        "https://phgabra-pdf-to-searchable--8080.prod1.defang.dev/extract_text/",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("File upload failed.");
+      }
+
+      const data = await response.json();
+      const extractedText = data.text;
+      console.log("Extracted Text:", extractedText);      
+      
+      toast.success("File uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Error extracting text from the PDF. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col spyder-app text-text-color">
       <Navbar />
       <main className="flex-grow flex flex-col items-center px-4 py-8">
-        <div className="bg-opacity-70 rounded-lg w-full max-w-2xl mb-2"> {/* Adjusted margin */}
+        <div className="bg-opacity-70 rounded-lg w-full max-w-2xl mb-2">
           <div className="mb-6">
             <h2 className="text-xl mb-2">Enter arXiv ID:</h2>
             <div className="flex space-x-1 items-center rounded-md">
@@ -126,6 +169,8 @@ const Home = () => {
               accept=".pdf"
               id="fileInput"
               className="hidden"
+              onChange={handleFileChange}
+              disabled={fileDisabled}
             />
           </div>
         </div>
@@ -140,7 +185,7 @@ const Home = () => {
         </div>
 
         {graphData && arxivId && (
-          <div className="mt-2 w-3/4 max-w-4xl bg-white rounded-lg flex mx-auto"> {/* Adjusted margin */}
+          <div className="mt-2 w-3/4 max-w-4xl bg-white rounded-lg flex mx-auto">
             <NetworkVisualization
               data={graphData}
               onNodeClick={handleNodeClick}
