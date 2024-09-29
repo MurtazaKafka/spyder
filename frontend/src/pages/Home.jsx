@@ -24,6 +24,7 @@ const Home = () => {
   }, [graphData]);
 
   const fetchPaperNetwork = async (arxivId) => {
+    console.log(arxivId);
     setLoading(true);
     try {
       const response = await fetch(
@@ -49,22 +50,27 @@ const Home = () => {
     fetchPaperNetwork(arxivId.replace('/', "%2F"));
   };
 
+  const handlePaperSearchwithID = nodeId => {
+    console.log("ARVIX ID", nodeId);
+    fetchPaperNetwork(nodeId.replace('/', "%2F"));
+  }
+
   const handleNodeClick = (nodeId) => {
     const clickedPaper = graphData.nodes?.find((node) => node.id === nodeId);
     setSelectedPaper(clickedPaper);
     if (nodeId !== centerNodeId) {
-      handlePaperSearch(nodeId);
-      setTimeout(() => {
-        if (paperDetailsRef.current) {
-          paperDetailsRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 1000);
+      setArxivId(nodeId);
+      handlePaperSearchwithID(nodeId);
+      if (paperDetailsRef.current) {
+        paperDetailsRef.current.scrollIntoView({ behavior: "smooth" });
+      }
     } else {
       if (paperDetailsRef.current) {
         paperDetailsRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }
   };
+
 
   const handleInputChange = (e) => {
     setArxivId(e.target.value);
