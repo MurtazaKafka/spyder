@@ -108,15 +108,18 @@ const Home = () => {
         }
       );
 
-      if (!response.ok) {
+      console.log("RESPONSE: "+response.status);
+      if (response.status !== 200) {
         throw new Error("File upload failed.");
       }
 
-      const data = await response.json();
-      const extractedText = data.text;
+      const data = await response.text();
+      const extractedText = data;
       console.log("Extracted Text:", extractedText);      
       
       toast.success("File uploaded successfully!");
+      setLoading(false);
+
     } catch (error) {
       console.error("Error uploading file:", error);
       toast.error("Error extracting text from the PDF. Please try again.");
