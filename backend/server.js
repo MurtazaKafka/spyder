@@ -3,6 +3,8 @@ const axios = require('axios');
 const xml2js = require('xml2js');
 const cors = require('cors');
 
+const db = require('./db');
+
 const app = express();
 const port = 3001;
 
@@ -14,14 +16,29 @@ async function fetchPaperDetails(arxivId) {
   const result = await xml2js.parseStringPromise(response.data);
   const entry = result.feed.entry[0];
 
-  return {
+  const data = {
     id: arxivId,
     title: entry.title[0],
     authors: entry.author.map(author => author.name[0]),
     abstract: entry.summary[0],
     link: entry.id[0],
     categories: entry.category.map(cat => cat.$.term)
-  };
+  }
+
+  try {
+    const db = getDB();
+
+    const result = await db.collection('papers').insertOne(data); 
+    console.log('Data inserted:', result.insertedId);
+
+    res.status(201).send({ success: true, insertedId: result.insertedId });
+  } catch (error) {
+    console.error('Error inserting data:', error);
+    res.status(500).send({ success: false, error: 'Error inserting data' });
+  }
+
+
+  return data;
 }
 
 async function fetchRelatedPapers(category, excludeId) {
