@@ -3,7 +3,7 @@ const axios = require('axios');
 const xml2js = require('xml2js');
 const cors = require('cors');
 
-const db = require('./db');
+const dbModule = require('./db');
 
 const app = express();
 const port = 3001;
@@ -26,7 +26,8 @@ async function fetchPaperDetails(arxivId) {
   }
 
   try {
-    const db = getDB();
+    dbModule.connectToDB();
+    const db = dbModule.getDB();
 
     const result = await db.collection('papers').insertOne(data); 
     console.log('Data inserted:', result.insertedId);
