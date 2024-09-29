@@ -41,14 +41,14 @@ function App() {
   };
 
   const handlePaperSearch = (arxivId) => {
-    fetchPaperNetwork(arxivId);
+    fetchPaperNetwork(arxivId.replace('/', "%2F"));
   };
 
   const handleNodeClick = (nodeId) => {
     const clickedPaper = graphData.nodes.find(node => node.id === nodeId);
     setSelectedPaper(clickedPaper);
     if (nodeId !== centerNodeId) {
-      fetchPaperNetwork(nodeId);
+      handlePaperSearch(nodeId);
     }
   };
 
