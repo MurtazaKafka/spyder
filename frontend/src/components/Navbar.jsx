@@ -6,7 +6,7 @@ const Navbar = () => {
     <header className="bg-black bg-opacity-80 py-4 px-8 flex justify-between items-center">
       <Link
         to="/team"
-        className="flex items-center space-x-2 hover:text-purple-300 transition-colors"
+        className="flex items-center space-x-2 hover:text-accent-color transition-colors"
       >
         <Users size={24} />
         <span>Our Team</span>
@@ -17,7 +17,7 @@ const Navbar = () => {
       </Link>
       <Link
         to="/mission"
-        className="flex items-center space-x-2 hover:text-purple-300 transition-colors"
+        className="flex items-center space-x-2 hover:text-accent-color transition-colors"
       >
         <Crosshair size={24} />
         <span>Our Mission</span>

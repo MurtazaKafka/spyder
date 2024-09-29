@@ -76,7 +76,7 @@ const CanvasBackground = () => {
         Math.random() * 0.2 * (Math.random() < 0.5 ? 1 : -1),
       ],
       size: size,
-      color: `rgba(0, 200, 200, ${Math.random() * 0.5 + 0.1})`,
+      color: `rgba(43, 118, 237, ${Math.random() * 0.5 + 0.1})`,
       update() {
         this.location = add(this.location, this.velocity);
       },
@@ -132,7 +132,7 @@ const CanvasBackground = () => {
       wanderer.checkEdges();
       wanderer.update();
       if (settings.showWanderer) {
-        wanderer.color = "rgba(255, 0, 100, 1)";
+        wanderer.color = "rgb(43, 118, 237)";
         wanderer.draw(ctx);
       }
       updateAndDrawNodes();

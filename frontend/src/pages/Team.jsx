@@ -51,7 +51,7 @@ const Team = () => {
               <p className="text-center">{member.description}</p>
               <a
                 href={`mailto:${member.email}`}
-                className="mt-2 text-purple-300 hover:underline"
+                className="mt-2 text-accent-color hover:underline"
               >
                 {member.email}
               </a>

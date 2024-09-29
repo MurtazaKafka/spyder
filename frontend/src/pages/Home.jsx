@@ -114,7 +114,7 @@ const Home = () => {
             <p>
               <b>Or</b>{" "}
               <span
-                className="text-link underline cursor-pointer"
+                className="text-link text-accent-color underline cursor-pointer"
                 onClick={() => document.getElementById("fileInput").click()}
               >
                 upload
