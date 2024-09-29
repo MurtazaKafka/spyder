@@ -46,7 +46,7 @@ const Home = () => {
   };
 
   const handleNodeClick = (nodeId) => {
-    const clickedPaper = graphData.nodes.find((node) => node.id === nodeId);
+    const clickedPaper = graphData.nodes?.find((node) => node.id === nodeId);
     setSelectedPaper(clickedPaper);
     if (nodeId !== centerNodeId) {
       fetchPaperNetwork(nodeId);

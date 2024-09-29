@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
-function NetworkVisualization({ data }) {
+function NetworkVisualization({ data, onNodeClick }) {
   const svgRef = useRef();
 
   useEffect(() => {
@@ -57,7 +57,8 @@ function NetworkVisualization({ data }) {
         .call(d3.drag()
           .on('start', dragstarted)
           .on('drag', dragged)
-          .on('end', dragended));
+          .on('end', dragended))
+        .on('click', (event, d) => onNodeClick(d.id));
 
       const label = svg.append('g')
         .selectAll('text')
@@ -107,7 +108,7 @@ function NetworkVisualization({ data }) {
         event.subject.fy = null;
       }
     }
-  }, [data]);
+  }, [data, onNodeClick]);
 
   return <svg ref={svgRef}></svg>;
 }
