@@ -11,3 +11,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Custom scrollbar for WebKit browsers */
+*::-webkit-scrollbar {
+  width: 20px; /* Width of the scrollbar */
+}
+
+/* Racetrack (scrollbar track) */
+*::-webkit-scrollbar-track {
+  background: url('https://www.racetrackwholesale.com/wp-content/uploads/2018/05/SS86_CFDrcoratingRoll_600.1-1-400x500.png') center; /* Your racetrack image */
+  border-radius: 10px; /* Rounded corners for track */
+}
+
+/* Scroll thumb (race car) */
+*::-webkit-scrollbar-thumb {
+  background: url('https://images.vexels.com/content/139450/preview/race-car-speed-racing-d1a210.png') center/contain no-repeat;
+  transform: rotate(270deg); /* Rotate the race car 90 degrees */
+  border-radius: 10px;
+  background-color: transparent;
+}
+
+/* Optional: Style for scrollbar buttons */
+*::-webkit-scrollbar-button {
+  display: none;
+}
