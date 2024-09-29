@@ -15,6 +15,13 @@ async function fetchPaperDetails(arxivId) {
     const response = await axios.get(`http://export.arxiv.org/api/query?id_list=${arxivId}`);
     const result = await xml2js.parseStringPromise(response.data);
     const entry = result.feed.entry[0];
+
+    await dbModule.connectToDB();
+    const dbRes = await dbModule.searchInDB('papers', { id: arxivId });
+    if (dbRes.length > 0) {
+      console.log('Data already in DB:', dbRes[0]);
+      return dbRes[0];
+    }
   
   const data = {
     id: arxivId,
@@ -26,16 +33,14 @@ async function fetchPaperDetails(arxivId) {
   }
 
   try {
-    dbModule.connectToDB();
+    await dbModule.connectToDB();
     const db = dbModule.getDB();
 
     const result = await db.collection('papers').insertOne(data); 
     console.log('Data inserted:', result.insertedId);
 
-    res.status(201).send({ success: true, insertedId: result.insertedId });
   } catch (error) {
     console.error('Error inserting data:', error);
-    res.status(500).send({ success: false, error: 'Error inserting data' });
   }
 
   return data;
