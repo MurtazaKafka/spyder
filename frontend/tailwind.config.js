@@ -5,11 +5,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'bg-color': '#0a0a0a',        
-        'text-color': '#ffffff',       
-        'accent-color': '#3a86ff',    
-        'secondary-color': '#1a1a1a', 
-        'tertiary-color': '#2a2a2a',
+        'bg-color': '#18c793',        
+        'text-color': '#08252b6f',       
+        'accent-color': '#6b705c',    
+        'secondary-color': '#588157', 
+        'tertiary-color': '#a3b18a',
       },
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
