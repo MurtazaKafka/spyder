@@ -6,10 +6,12 @@ import Team from "./pages/Team";
 import Mission from "./pages/Mission";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CanvasBackground from "./components/CanvasBackground";
 
 function App() {
   return (
     <>
+      <CanvasBackground />
       <Router>
         <Routes>
           <Route path="/team" element={<Team />} />
