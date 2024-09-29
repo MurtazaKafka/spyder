@@ -46,14 +46,14 @@ const Home = () => {
 
   const handlePaperSearch = () => {
     console.log("ARVIX ID", arxivId);
-    fetchPaperNetwork(arxivId);
+    fetchPaperNetwork(arxivId.replace('/', "%2F"));
   };
 
   const handleNodeClick = (nodeId) => {
     const clickedPaper = graphData.nodes?.find((node) => node.id === nodeId);
     setSelectedPaper(clickedPaper);
     if (nodeId !== centerNodeId) {
-      fetchPaperNetwork(nodeId);
+      handlePaperSearch(nodeId);
       setTimeout(() => {
         if (paperDetailsRef.current) {
           paperDetailsRef.current.scrollIntoView({ behavior: "smooth" });
@@ -114,7 +114,7 @@ const Home = () => {
             <p>
               <b>Or</b>{" "}
               <span
-                className="text-link underline cursor-pointer"
+                className="text-link text-accent-color underline cursor-pointer"
                 onClick={() => document.getElementById("fileInput").click()}
               >
                 upload

@@ -170,6 +170,7 @@ async function predictFutureWorks(paper, relatedPapers) {
 
 
   app.get('/api/paper/:id', async (req, res) => {
+    console.log(req.params.id);
     try {
       const arxivId = req.params.id;
       const graph = await recursiveSearch(arxivId);

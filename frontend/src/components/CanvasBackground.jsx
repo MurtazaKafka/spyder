@@ -35,7 +35,7 @@ const CanvasBackground = () => {
       acceleration: [0, 0],
       mass: 1,
       size: 5,
-      color: "rgba(255, 0, 100, 0)",
+      color: "rgba(255, 0, 100, 0.5)",
       wander(radius, distance, change) {
         let wanderPoint = normalize([Math.random() - 0.5, Math.random() - 0.5]);
         wanderPoint = multiply(wanderPoint, radius);
@@ -52,8 +52,10 @@ const CanvasBackground = () => {
       },
       update() {
         this.velocity = add(this.velocity, this.acceleration);
+        this.velocity = multiply(normalize(this.velocity), 3);
         this.location = add(this.location, this.velocity);
         this.acceleration = [0, 0];
+        this.checkEdges();
       },
       draw(ctx) {
         ctx.fillStyle = this.color;
@@ -76,7 +78,7 @@ const CanvasBackground = () => {
         Math.random() * 0.2 * (Math.random() < 0.5 ? 1 : -1),
       ],
       size: size,
-      color: `rgba(0, 200, 200, ${Math.random() * 0.5 + 0.1})`,
+      color: `rgba(43, 118, 237, ${Math.random() * 0.5 + 0.1})`,
       update() {
         this.location = add(this.location, this.velocity);
       },
@@ -129,31 +131,35 @@ const CanvasBackground = () => {
     const animate = () => {
       drawBackground();
       wanderer.wander(settings.wanderRadius, settings.wanderDistance, settings.wanderChange);
-      wanderer.checkEdges();
       wanderer.update();
       if (settings.showWanderer) {
-        wanderer.color = "rgba(255, 0, 100, 1)";
         wanderer.draw(ctx);
       }
       updateAndDrawNodes();
       if (frameCount % settings.dropFrequency === 0) drop();
       frameCount++;
+      
       animationFrameId = window.requestAnimationFrame(animate);
     };
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      wanderer.location = [canvas.width / 2, canvas.height / 2];
     };
 
-    wanderer = createWanderer();
-    resizeCanvas();
+    const initializeAnimation = () => {
+      wanderer = createWanderer();
+      resizeCanvas();
+      animate();
+    };
+
+    initializeAnimation();
     window.addEventListener("resize", resizeCanvas);
-    animate(); // Start the animation loop
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
-      window.cancelAnimationFrame(animationFrameId); // Clear the animation frame when unmounted
+      window.cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
