@@ -66,7 +66,7 @@ async function fetchRelatedPapers(category, excludeId, maxResults = 8) {
   }
 
 
-async function recursiveSearch(arxivId, depth = 4, maxPapersPerLevel = 8) {
+async function recursiveSearch(arxivId, depth = 8, maxPapersPerLevel = 16) {
     const visited = new Set();
     const graph = { nodes: [], links: [] };
   
@@ -155,8 +155,7 @@ async function predictFutureWorks(paper, relatedPapers) {
       .slice(0, 5)
       .map(([name, score]) => ({
         name,
-        score: score.toFixed(2),
-        reason: `High similarity in research interests and methodologies`
+        score: score.toFixed(2)
       }));
   
     return sortedCollaborators;
