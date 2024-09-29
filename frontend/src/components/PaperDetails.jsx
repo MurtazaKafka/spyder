@@ -1,6 +1,6 @@
 import React from 'react';
 
-function PaperDetails({ paper }) {
+function PaperDetails({ paper,  collaboratorSuggestions }) {
   if (!paper) {
     return <div className="text-center text-gray-400 italic">Select a paper to view details</div>;
   }
@@ -29,6 +29,21 @@ function PaperDetails({ paper }) {
       >
         View on arXiv
       </a>
+
+      {collaboratorSuggestions && collaboratorSuggestions.length > 0 && (
+        <div className="collaborator-suggestions">
+          <h3>Potential Collaborators</h3>
+          <ul>
+            {collaboratorSuggestions.map((collaborator, index) => (
+              <li key={index}>
+                <strong>{collaborator.name}</strong> (Similarity Score: {collaborator.score})
+                <br />
+                <em>Reason: {collaborator.reason}</em>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
