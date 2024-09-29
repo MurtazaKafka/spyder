@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .spyder-app {
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   color: white;
   min-height: 100vh;
   display: flex;
@@ -13,123 +13,16 @@
   background-position: center;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.6rem 20%;
-  background-color: rgba(0, 0, 0, 0.5);
+.loader {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
 }
 
-.header-item {
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff !important;
-  cursor: pointer;
-}
-
-.spider-icon-header{
-  display: flex;
-}
-
-.spider-icon {
-  width: 64px;
-  height: 64px;
-  margin-left: 0.5rem;
-}
-
-main {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-}
-
-.search-container {
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 10px;
-  width: 40%;
-  padding: 20px;
-  margin: 0 auto;
-  margin-bottom: 2rem;
-}
-
-.archive-id{
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 20px;
-}
-
-.archive-id>input{
-  height: 30px !important;
-  padding: 5px 15px;
-  border: none;
-  border-radius: 5px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-}
-
-.action-buttons button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.contact-us {
-  background-color: #0000FF;
-  color: white;
-}
-
-.view-project {
-  background-color: #4CAF50;
-  color: white;
-}
-
-footer {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.footer-left{
-  width: 30%;
-}
-.footer-right{
-  width: 70%;
-}
-.footer-left, .footer-right {
-  display: flex;
-  flex-direction: column;
-}
-
-.footer-logo-holder{
-  display: flex;
-}
-.footer-logo {
-  width: 20px;
-  margin-right: 1rem;
-}
-
-.team-members p {
-  margin: 0.25rem 0;
-  font-size: 0.8rem;
-}
-
-.sponsor-logos {
-  display: flex;
-  gap: 1rem;
-}
-
-.sponsor-logos img {
-  height: 70px;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
