@@ -10,11 +10,13 @@ function App() {
   const [centerNodeId, setCenterNodeId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [collaboratorSuggestions, setCollaboratorSuggestions] = useState(null);
 
   useEffect(() => {
     if (graphData && graphData.nodes.length > 0) {
       setSelectedPaper(graphData.nodes[0]);
       setCenterNodeId(graphData.nodes[0].id);
+      setCollaboratorSuggestions(graphData.collaboratorSuggestions);
     }
   }, [graphData]);
 
@@ -29,6 +31,7 @@ function App() {
       const data = await response.json();
       setGraphData(data);
       setCenterNodeId(arxivId);
+      setCollaboratorSuggestions(data.collaboratorSuggestions);
     } catch (error) {
       console.error('Error fetching paper:', error);
       setError('Error fetching paper details. Please try again.');
@@ -64,7 +67,7 @@ function App() {
           <div className="loading-message">Mapping the research landscape...</div>
         ) : (
           <>
-            {selectedPaper && <PaperDetails paper={selectedPaper} />}
+            {selectedPaper && <PaperDetails paper={selectedPaper} collaboratorSuggestions={collaboratorSuggestions} />}
             {graphData && (
               <div className="network-container">
                 <NetworkVisualization 
