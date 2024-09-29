@@ -86,3 +86,18 @@
 ::-webkit-scrollbar-button:hover {
   background-color: #5a5a5a;
 }
+
+.loading {
+  border: 8px solid rgba(255, 255, 255, 0.2);
+  border-left-color: #4a90e2;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin-loading {
+  to {
+    transform: rotate(360deg);
+  }
+}

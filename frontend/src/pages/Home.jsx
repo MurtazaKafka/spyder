@@ -3,6 +3,7 @@ import NetworkVisualization from "../components/NetworkVisualization";
 import Navbar from "../components/Navbar";
 import PaperDetails from "../components/PaperDetails";
 import { toast } from "react-toastify";
+import Spinner from "../components/Spinner";
 
 const Home = () => {
   const [arxivId, setArxivId] = useState(null);
@@ -212,14 +213,20 @@ const Home = () => {
           )}
         </div>
 
-        {graphData && arxivId && (
-          <div className="mt-2 w-3/4 max-w-4xl bg-white rounded-lg flex mx-auto">
-            <NetworkVisualization
-              data={graphData}
-              onNodeClick={handleNodeClick}
-              centerNodeId={centerNodeId}
-            />
+        {loading ? ( // Show the spinner if loading
+          <div className="mt-4">
+            <Spinner />
           </div>
+        ) : (
+          graphData && arxivId && ( // Show the NetworkVisualization if graphData is available
+            <div className="mt-2 w-3/4 max-w-4xl bg-white rounded-lg flex mx-auto">
+              <NetworkVisualization
+                data={graphData}
+                onNodeClick={handleNodeClick}
+                centerNodeId={centerNodeId}
+              />
+            </div>
+          )
         )}
 
         {flowchartImage && (
