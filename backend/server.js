@@ -3,6 +3,8 @@ const axios = require('axios');
 const xml2js = require('xml2js');
 const cors = require('cors');
 
+const dbModule = require('./db');
+
 const app = express();
 const port = 3001;
 
@@ -13,16 +15,36 @@ async function fetchPaperDetails(arxivId) {
     const response = await axios.get(`http://export.arxiv.org/api/query?id_list=${arxivId}`);
     const result = await xml2js.parseStringPromise(response.data);
     const entry = result.feed.entry[0];
+
+    await dbModule.connectToDB();
+    const dbRes = await dbModule.searchInDB('papers', { id: arxivId });
+    if (dbRes.length > 0) {
+      console.log('Data already in DB:', dbRes[0]);
+      return dbRes[0];
+    }
   
-    return {
-      id: arxivId,
-      title: entry.title[0],
-      authors: entry.author.map(author => author.name[0]),
-      abstract: entry.summary[0],
-      link: entry.id[0],
-      categories: entry.category.map(cat => cat.$.term)
-    };
+  const data = {
+    id: arxivId,
+    title: entry.title[0],
+    authors: entry.author.map(author => author.name[0]),
+    abstract: entry.summary[0],
+    link: entry.id[0],
+    categories: entry.category.map(cat => cat.$.term)
   }
+
+  try {
+    await dbModule.connectToDB();
+    const db = dbModule.getDB();
+
+    const result = await db.collection('papers').insertOne(data); 
+    console.log('Data inserted:', result.insertedId);
+
+  } catch (error) {
+    console.error('Error inserting data:', error);
+  }
+
+  return data;
+}
 
 async function fetchRelatedPapers(category, excludeId, maxResults = 8) {
     try {
