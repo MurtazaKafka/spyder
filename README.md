@@ -1,3 +1,5 @@
+# Spyder 
+
 ## Inspiration
 In the rapidly evolving world of academic research, staying updated with the latest papers and identifying trends is crucial. However, the process of finding connections between new research and older foundational work can be overwhelming. As computer science students passionate about advancing research accessibility, we wanted to simplify this. Spyder was born out of a need to streamline the research process by offering a visualization tool that shows the intricate web of citations and potential collaborators, enabling researchers to see the ripple effects of any single paper and easily explore its impact.
 
