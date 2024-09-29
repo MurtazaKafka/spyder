@@ -10,26 +10,26 @@ app.use(cors());
 app.use(express.json());
 
 async function fetchPaperDetails(arxivId) {
-  const response = await axios.get(`http://export.arxiv.org/api/query?id_list=${arxivId}`);
-  const result = await xml2js.parseStringPromise(response.data);
-  const entry = result.feed.entry[0];
+    const response = await axios.get(`http://export.arxiv.org/api/query?id_list=${arxivId}`);
+    const result = await xml2js.parseStringPromise(response.data);
+    const entry = result.feed.entry[0];
+  
+    return {
+      id: arxivId,
+      title: entry.title[0],
+      authors: entry.author.map(author => author.name[0]),
+      abstract: entry.summary[0],
+      link: entry.id[0],
+      categories: entry.category.map(cat => cat.$.term)
+    };
+  }
 
-  return {
-    id: arxivId,
-    title: entry.title[0],
-    authors: entry.author.map(author => author.name[0]),
-    abstract: entry.summary[0],
-    link: entry.id[0],
-    categories: entry.category.map(cat => cat.$.term)
-  };
-}
-
-async function fetchRelatedPapers(category, excludeId) {
+async function fetchRelatedPapers(category, excludeId, maxResults = 8) {
     try {
-      const response = await axios.get(`http://export.arxiv.org/api/query?search_query=cat:${category}&max_results=10`);
+      const response = await axios.get(`http://export.arxiv.org/api/query?search_query=cat:${category}&max_results=${maxResults}`);
       const result = await xml2js.parseStringPromise(response.data);
       return result.feed.entry
-        .filter(entry => entry.id[0] !== excludeId)
+        .filter(entry => entry.id[0].split('/abs/')[1] !== excludeId)
         .map(entry => ({
           id: entry.id[0].split('/abs/')[1],
           title: entry.title[0],
@@ -43,7 +43,7 @@ async function fetchRelatedPapers(category, excludeId) {
   }
 
 
-  async function recursiveSearch(arxivId, depth = 2, maxPapersPerLevel = 3) {
+async function recursiveSearch(arxivId, depth = 4, maxPapersPerLevel = 8) {
     const visited = new Set();
     const graph = { nodes: [], links: [] };
   
@@ -68,13 +68,10 @@ async function fetchRelatedPapers(category, excludeId) {
   }
 
 
-  app.get('/api/paper/:id', async (req, res) => {
+app.get('/api/paper/:id', async (req, res) => {
     try {
       const arxivId = req.params.id;
-      const paper = await fetchPaperDetails(arxivId);
-      const relatedPapers = await fetchRelatedPapers(paper.categories[0], paper.id);
       const graph = await recursiveSearch(arxivId);
-  
       res.json(graph);
     } catch (error) {
       console.error('Detailed error:', error);
