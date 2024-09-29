@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const xml2js = require('xml2js');
 const cors = require('cors');
+const natural = require('natural');
 
 const app = express();
 const port = 3001;
@@ -68,11 +69,99 @@ async function recursiveSearch(arxivId, depth = 4, maxPapersPerLevel = 8) {
   }
 
 
-app.get('/api/paper/:id', async (req, res) => {
+
+async function predictFutureWorks(paper, relatedPapers) {
+    const allAbstracts = [paper.abstract, ...relatedPapers.map(p => p.abstract)].join(' ');
+    const tokenizer = new natural.WordTokenizer();
+    const tokens = tokenizer.tokenize(allAbstracts.toLowerCase());
+  
+    const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']);
+    const filteredTokens = tokens.filter(token => token.length > 3 && !stopWords.has(token));
+  
+    const tokenFrequency = {};
+    filteredTokens.forEach(token => {
+      tokenFrequency[token] = (tokenFrequency[token] || 0) + 1;
+    });
+  
+    const sortedTokens = Object.entries(tokenFrequency)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([token]) => token);
+  
+    const futureSuggestions = [
+      `Exploring the impact of ${sortedTokens[0]} on ${sortedTokens[1]} in ${paper.categories[0]}`,
+      `Developing new methods for ${sortedTokens[2]} analysis in the context of ${sortedTokens[3]}`,
+      `Investigating the relationship between ${sortedTokens[4]} and ${sortedTokens[5]} in ${paper.categories[0]}`,
+      `Applying ${sortedTokens[6]} techniques to improve ${sortedTokens[7]} in ${paper.title.split(' ').slice(0, 3).join(' ')}`,
+      `Extending the current work on ${sortedTokens[8]} to include ${sortedTokens[9]} considerations`
+    ];
+  
+    return futureSuggestions;
+  }
+
+
+
+  async function suggestCollaborators(paper, relatedPapers) {
+    const TfIdf = natural.TfIdf;
+    const tfidf = new TfIdf();
+  
+    // Add the main paper's abstract to the TF-IDF model
+    tfidf.addDocument(paper.abstract);
+  
+    // Create a map to store potential collaborators
+    const collaborators = new Map();
+  
+    // Process related papers
+    relatedPapers.forEach((relatedPaper, index) => {
+      // Add the related paper's abstract to the TF-IDF model
+      tfidf.addDocument(relatedPaper.abstract);
+  
+      // Calculate similarity between the main paper and the related paper
+      const similarity = calculateSimilarity(tfidf, 0, index + 1);
+  
+      // Add authors of the related paper as potential collaborators
+      relatedPaper.authors.forEach(author => {
+        if (!paper.authors.includes(author)) {
+          const currentScore = collaborators.get(author) || 0;
+          collaborators.set(author, currentScore + similarity);
+        }
+      });
+    });
+  
+    // Sort collaborators by score and return top 5
+    const sortedCollaborators = Array.from(collaborators.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, score]) => ({
+        name,
+        score: score.toFixed(2),
+        reason: `High similarity in research interests and methodologies`
+      }));
+  
+    return sortedCollaborators;
+  }
+  
+  function calculateSimilarity(tfidf, doc1Index, doc2Index) {
+    const terms1 = new Set(tfidf.listTerms(doc1Index).map(item => item.term));
+    const terms2 = new Set(tfidf.listTerms(doc2Index).map(item => item.term));
+    const intersection = new Set([...terms1].filter(term => terms2.has(term)));
+    return intersection.size / (Math.sqrt(terms1.size) * Math.sqrt(terms2.size));
+  }
+
+
+  app.get('/api/paper/:id', async (req, res) => {
     try {
       const arxivId = req.params.id;
       const graph = await recursiveSearch(arxivId);
-      res.json(graph);
+      const centralPaper = graph.nodes.find(node => node.id === arxivId);
+      const relatedPapers = graph.nodes.filter(node => node.id !== arxivId);
+      
+      const collaboratorSuggestions = await suggestCollaborators(centralPaper, relatedPapers);
+      
+      res.json({
+        ...graph,
+        collaboratorSuggestions
+      });
     } catch (error) {
       console.error('Detailed error:', error);
       res.status(500).json({ error: 'An error occurred while processing your request', details: error.message, stack: error.stack });
