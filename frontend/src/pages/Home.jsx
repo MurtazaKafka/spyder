@@ -82,7 +82,7 @@ const Home = () => {
       <main className="flex-grow flex flex-col items-center px-4 py-8">
         <div className="bg-opacity-70 rounded-lg w-full max-w-2xl mb-2"> {/* Adjusted margin */}
           <div className="mb-6">
-            <h2 className="text-xl mb-2">Enter ArXiV id:</h2>
+            <h2 className="text-xl mb-2">Enter arXiv id:</h2>
             <div className="flex space-x-1 items-center rounded-md">
               <input
                 type="text"
