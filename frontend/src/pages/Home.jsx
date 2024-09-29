@@ -46,14 +46,14 @@ const Home = () => {
 
   const handlePaperSearch = () => {
     console.log("ARVIX ID", arxivId);
-    fetchPaperNetwork(arxivId);
+    fetchPaperNetwork(arxivId.replace('/', "%2F"));
   };
 
   const handleNodeClick = (nodeId) => {
     const clickedPaper = graphData.nodes?.find((node) => node.id === nodeId);
     setSelectedPaper(clickedPaper);
     if (nodeId !== centerNodeId) {
-      fetchPaperNetwork(nodeId);
+      handlePaperSearch(nodeId);
       setTimeout(() => {
         if (paperDetailsRef.current) {
           paperDetailsRef.current.scrollIntoView({ behavior: "smooth" });
