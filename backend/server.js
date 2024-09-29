@@ -91,7 +91,6 @@ async function recursiveSearch(arxivId, depth = 4, maxPapersPerLevel = 8) {
   }
 
 
-
 async function predictFutureWorks(paper, relatedPapers) {
     const allAbstracts = [paper.abstract, ...relatedPapers.map(p => p.abstract)].join(' ');
     const tokenizer = new natural.WordTokenizer();

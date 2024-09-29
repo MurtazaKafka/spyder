@@ -14,7 +14,7 @@ const teamMembers = [
     name: "Murtaza",
     description: "Sophomore - Computer Science @ Davidson College",
     email: "munikzad@davidson.edu",
-    image: "/images/murtaza.jpg",
+    image: "/images/murtaza.jpeg",
   },
   {
     name: "Pacis",
@@ -40,7 +40,7 @@ const Team = () => {
           {teamMembers.map((member, index) => (
             <div
               key={index}
-              className="bg-black bg-opacity-70 rounded-lg p-4 flex flex-col items-center"
+              className="bg-opacity-70 rounded-lg p-4 flex flex-col items-center"
             >
               <img
                 src={member.image}
@@ -51,7 +51,7 @@ const Team = () => {
               <p className="text-center">{member.description}</p>
               <a
                 href={`mailto:${member.email}`}
-                className="mt-2 text-purple-300 hover:underline"
+                className="mt-2 text-accent-color hover:underline"
               >
                 {member.email}
               </a>
