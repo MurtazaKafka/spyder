@@ -3,8 +3,11 @@ const axios = require('axios');
 const xml2js = require('xml2js');
 const cors = require('cors');
 const natural = require('natural');
+const path = require("path");
+const fs = require("fs");
 
 const dbModule = require('./db');
+const { generateFlowchartFromPaper, renderMermaidFlowchart } = require('./perplexity');
 
 const app = express();
 const port = 3001;
@@ -66,7 +69,7 @@ async function fetchRelatedPapers(category, excludeId, maxResults = 8) {
   }
 
 
-async function recursiveSearch(arxivId, depth = 8, maxPapersPerLevel = 16) {
+async function recursiveSearch(arxivId, depth = 4, maxPapersPerLevel = 8) {
     const visited = new Set();
     const graph = { nodes: [], links: [] };
   
@@ -89,37 +92,6 @@ async function recursiveSearch(arxivId, depth = 8, maxPapersPerLevel = 16) {
     await search(arxivId, 0);
     return graph;
   }
-
-
-async function predictFutureWorks(paper, relatedPapers) {
-    const allAbstracts = [paper.abstract, ...relatedPapers.map(p => p.abstract)].join(' ');
-    const tokenizer = new natural.WordTokenizer();
-    const tokens = tokenizer.tokenize(allAbstracts.toLowerCase());
-  
-    const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']);
-    const filteredTokens = tokens.filter(token => token.length > 3 && !stopWords.has(token));
-  
-    const tokenFrequency = {};
-    filteredTokens.forEach(token => {
-      tokenFrequency[token] = (tokenFrequency[token] || 0) + 1;
-    });
-  
-    const sortedTokens = Object.entries(tokenFrequency)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([token]) => token);
-  
-    const futureSuggestions = [
-      `Exploring the impact of ${sortedTokens[0]} on ${sortedTokens[1]} in ${paper.categories[0]}`,
-      `Developing new methods for ${sortedTokens[2]} analysis in the context of ${sortedTokens[3]}`,
-      `Investigating the relationship between ${sortedTokens[4]} and ${sortedTokens[5]} in ${paper.categories[0]}`,
-      `Applying ${sortedTokens[6]} techniques to improve ${sortedTokens[7]} in ${paper.title.split(' ').slice(0, 3).join(' ')}`,
-      `Extending the current work on ${sortedTokens[8]} to include ${sortedTokens[9]} considerations`
-    ];
-  
-    return futureSuggestions;
-  }
-
 
 
   async function suggestCollaborators(paper, relatedPapers) {
@@ -155,7 +127,8 @@ async function predictFutureWorks(paper, relatedPapers) {
       .slice(0, 5)
       .map(([name, score]) => ({
         name,
-        score: score.toFixed(2)
+        score: score.toFixed(2),
+        reason: `High similarity in research interests and methodologies`
       }));
   
     return sortedCollaborators;
@@ -170,7 +143,6 @@ async function predictFutureWorks(paper, relatedPapers) {
 
 
   app.get('/api/paper/:id', async (req, res) => {
-    console.log(req.params.id);
     try {
       const arxivId = req.params.id;
       const graph = await recursiveSearch(arxivId);
@@ -189,6 +161,27 @@ async function predictFutureWorks(paper, relatedPapers) {
     }
   });
 
+  app.post('/api/generate-flowchart', async (req, res) => {
+    const paperContent = req.body.content;
+
+    if (!paperContent) {
+        return res.status(400).json({ error: 'No content provided' });
+    }
+
+    try {
+        const flowchartCode = await generateFlowchartFromPaper(paperContent);
+        await renderMermaidFlowchart(flowchartCode); // Ensure flowchart is rendered before reading
+
+        const imagePath = path.join(__dirname, "flowchart.png"); // Construct the path
+        res.setHeader('Content-Type', 'image/png');
+        res.send(fs.readFileSync(imagePath)); // Read the image from the constructed path
+    } catch (error) {
+        console.error('Error generating flowchart:', error);
+        res.status(500).json({ error: 'Failed to generate flowchart', details: error.message });
+    }
+});
+  
+
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running at ${port}`);
 });

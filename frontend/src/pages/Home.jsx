@@ -13,6 +13,7 @@ const Home = () => {
   const [fileDisabled, setFileDisabled] = useState(false);
   const [collaboratorSuggestions, setCollaboratorSuggestions] = useState(null);
   const [file, setFile] = useState(null); // For storing the uploaded file
+  const [flowchartImage, setFlowchartImage] = useState(null); // For storing the flowchart image URL
 
   const paperDetailsRef = useRef(null);
 
@@ -29,7 +30,7 @@ const Home = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:3001/api/paper/${arxivId}`
+        `${process.env.REACT_APP_URL}/api/paper/${arxivId}`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -50,10 +51,10 @@ const Home = () => {
     fetchPaperNetwork(arxivId);
   };
 
-  const handlePaperSearchwithID = nodeId => {
-    console.log("ARVIX ID", nodeId);
-    fetchPaperNetwork(nodeId.replace('/', "%2F"));
-  }
+  const handlePaperSearchwithID = (nodeId) => {
+    console.log("ARXIV ID", nodeId);
+    fetchPaperNetwork(nodeId.replace("/", "%2F"));
+  };
 
   const handleNodeClick = (nodeId) => {
     const clickedPaper = graphData.nodes?.find((node) => node.id === nodeId);
@@ -71,16 +72,9 @@ const Home = () => {
     }
   };
 
-
   const handleInputChange = (e) => {
     setArxivId(e.target.value);
     setFileDisabled(e.target.value ? true : false);
-  };
-
-  // Handle file upload
-  const handleFileUploadClick = () => {
-    setArxivId(null);
-    setFileDisabled(false);
   };
 
   const handleFileChange = (e) => {
@@ -101,30 +95,55 @@ const Home = () => {
 
     try {
       const response = await fetch(
-        "https://phgabra-pdf-to-searchable--8080.prod1.defang.dev/extract_text/",
+        `${process.env.REACT_APP_PYTHON_URL}/extract_text/`,
         {
           method: "POST",
           body: formData,
         }
       );
 
-      console.log("RESPONSE: "+response.status);
+      console.log("RESPONSE: " + response.status);
       if (response.status !== 200) {
         throw new Error("File upload failed.");
       }
 
-      const data = await response.text();
-      const extractedText = data;
-      console.log("Extracted Text:", extractedText);      
-      
-      toast.success("File uploaded successfully!");
-      setLoading(false);
+      const extractedText = await response.text();
+      console.log("Extracted Text:", extractedText);
 
+      await generateFlowchart(extractedText);
+
+      toast.success("File uploaded and flowchart generated successfully!");
     } catch (error) {
       console.error("Error uploading file:", error);
       toast.error("Error extracting text from the PDF. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateFlowchart = async (extractedText) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_URL}/api/generate-flowchart`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content: extractedText }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Flowchart generation failed.");
+      }
+
+      const imageBlob = await response.blob(); // Get the image as a Blob
+      const imageUrl = URL.createObjectURL(imageBlob); // Create a URL for the Blob
+      setFlowchartImage(imageUrl); // Set the image URL for display
+    } catch (error) {
+      console.error("Error generating flowchart:", error);
+      toast.error("Error generating flowchart. Please try again.");
     }
   };
 
@@ -199,6 +218,16 @@ const Home = () => {
               data={graphData}
               onNodeClick={handleNodeClick}
               centerNodeId={centerNodeId}
+            />
+          </div>
+        )}
+
+        {flowchartImage && (
+          <div className="mt-8 h-auto rounded-lg w-full overflow-x-auto">
+            <img
+              src={flowchartImage}
+              alt="Generated Flowchart"
+              className="w-auto h-auto"
             />
           </div>
         )}
