@@ -1,30 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Upload } from "lucide-react";
 import "../App.css";
 import NetworkVisualization from "../components/NetworkVisualization";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import PaperDetails from "../components/PaperDetails";
+import { toast } from "react-toastify";
 
 const Home = () => {
   const [arxivId, setArxivId] = useState(null);
-  const [paperData, setPaperData] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [graphData, setGraphData] = useState(null);
+  const [selectedPaper, setSelectedPaper] = useState(null);
+  const [centerNodeId, setCenterNodeId] = useState(null);
+
   const [fileDisabled, setFileDisabled] = useState(false);
 
-  const handlePaperSearch = async () => {
-    if (!arxivId) return;
+  useEffect(() => {
+    if (graphData && graphData.nodes?.length > 0) {
+      setSelectedPaper(graphData.nodes[0]);
+      setCenterNodeId(graphData.nodes[0].id);
+    }
+  }, [graphData]);
+
+  const fetchPaperNetwork = async (arxivId) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/paper/${arxivId}`
-      );
+      const response = await fetch(`http://localhost:3001/api/paper/${arxivId}`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
       const data = await response.json();
-      setPaperData(data);
+      setGraphData(data);
+      setCenterNodeId(arxivId);
     } catch (error) {
       console.error("Error fetching paper:", error);
-      alert("Error fetching paper details");
+      toast.error("Error fetching paper details. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePaperSearch = () => {
+    fetchPaperNetwork(arxivId);
+  };
+
+  const handleNodeClick = (nodeId) => {
+    const clickedPaper = graphData.nodes.find((node) => node.id === nodeId);
+    setSelectedPaper(clickedPaper);
+    if (nodeId !== centerNodeId) {
+      fetchPaperNetwork(nodeId);
     }
   };
 
@@ -38,15 +63,15 @@ const Home = () => {
   };
 
   const handleFileUploadClick = () => {
-    setArxivId(null); // Clear input text
-    setFileDisabled(false); // Enable file input
+    setArxivId(null);
+    setFileDisabled(false);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br spyder-app text-white">
+    <div className="min-h-screen flex flex-col spyder-app bg-bg-color text-text-color">
       <Navbar />
       <main className="flex-grow flex flex-col justify-center items-center px-4 py-8">
-        <div className="bg-black bg-opacity-70 rounded-lg w-full max-w-2xl p-6 mb-8">
+        <div className="bg-secondary-color bg-opacity-70 rounded-lg w-full max-w-2xl p-6 mb-8">
           <div className="mb-6">
             <h2 className="text-xl mb-2">Enter ArXiV id:</h2>
             <div className="flex items-center bg-white rounded-md">
@@ -61,11 +86,11 @@ const Home = () => {
           </div>
 
           <div>
-            <p className="mb-2"><b>Or</b> upload a scanned document</p>
+            <p className="mb-2">
+              <b>Or</b> upload a scanned document
+            </p>
             <label
-              className={`flex items-center justify-center w-full ${
-                fileDisabled ? "bg-gray-400" : "bg-purple-600"
-              } text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors cursor-pointer`}
+              className={`flex items-center justify-center w-full ${fileDisabled ? "bg-tertiary-color" : "bg-accent-color"} text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors cursor-pointer`}
             >
               <Upload size={20} className="mr-2" />
               <span>Choose File</span>
@@ -82,9 +107,7 @@ const Home = () => {
 
         <div className="flex space-x-4">
           <button
-            className={`bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md transition-colors ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`bg-accent-color text-white px-6 py-3 rounded-md transition-colors ${loading ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"}`}
             onClick={handlePaperSearch}
             disabled={loading}
           >
@@ -99,9 +122,15 @@ const Home = () => {
           </button>
         </div>
 
-        {paperData && arxivId && (
+        {selectedPaper && <PaperDetails paper={selectedPaper} />}
+
+        {graphData && arxivId && (
           <div className="mt-8 w-full bg-white p-6 rounded-lg flex justify-center items-center">
-            <NetworkVisualization data={paperData} />
+            <NetworkVisualization
+              data={graphData}
+              onNodeClick={handleNodeClick}
+              centerNodeId={centerNodeId}
+            />
           </div>
         )}
       </main>

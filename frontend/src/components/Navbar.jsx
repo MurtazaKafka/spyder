@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <header className="bg-black bg-opacity-50 py-4 px-8 flex justify-between items-center">
+    <header className="bg-black bg-opacity-80 py-4 px-8 flex justify-between items-center">
       <Link
         to="/team"
         className="flex items-center space-x-2 hover:text-purple-300 transition-colors"
